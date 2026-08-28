@@ -1,19 +1,27 @@
----
-const currentPath = Astro.url.pathname;
----
-
 <nav class="nav">
   <a href="/" class="logo" data-animate="fade-down">Aesthetic Dine</a>
-  <ul class="nav-links">
+  <button
+    class="nav-toggle"
+    id="navToggle"
+    type="button"
+    aria-label="Toggle menu"
+    aria-expanded="false"
+    aria-controls="navMenu"
+  >
+    <span></span>
+    <span></span>
+  </button>
+  <ul class="nav-links" id="navMenu">
     <li><a href="/#home" data-animate="fade-down" data-delay="1">Home</a></li>
     <li><a href="/#features" data-animate="fade-down" data-delay="2">How it works</a></li>
     <li><a href="/#gallery" data-animate="fade-down" data-delay="3">Examples</a></li>
-    <li>
-      <a href="/pricing" class:list={{ active: currentPath === '/pricing' }} data-animate="fade-down" data-delay="4">Pricing</a>
-    </li>
+    <li><a href="/#pricing" data-animate="fade-down" data-delay="4">Pricing</a></li>
     <li><a href="/#about" data-animate="fade-down" data-delay="5">About</a></li>
+    <li class="nav-mobile-cta">
+      <a href="/get-started" class="btn btn-primary">Get started</a>
+    </li>
   </ul>
-  <a href="/get-started" class="btn btn-primary" style="margin-right: 0.75rem; padding: 0.6rem 1.25rem;" data-animate="fade-down" data-delay="6">Get started</a>
+  <a href="/get-started" class="btn btn-primary nav-cta-desktop" data-animate="fade-down" data-delay="6">Get started</a>
   <button class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark theme">
     <span class="theme-icon sun">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">

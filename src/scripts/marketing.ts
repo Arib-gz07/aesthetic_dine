@@ -1,8 +1,11 @@
 const html = document.documentElement;
+const isTouch =
+  window.matchMedia('(hover: none), (pointer: coarse)').matches ||
+  window.matchMedia('(max-width: 768px)').matches;
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 // ===== Theme Toggle =====
 const themeToggle = document.getElementById('themeToggle');
-
 const savedTheme = localStorage.getItem('aesthetic-theme');
 if (savedTheme) {
   html.setAttribute('data-theme', savedTheme);
@@ -15,30 +18,52 @@ themeToggle?.addEventListener('click', () => {
   localStorage.setItem('aesthetic-theme', next);
 });
 
-// ===== Cursor Glow =====
-const cursorGlow = document.querySelector<HTMLElement>('.cursor-glow');
-let mouseX = 0;
-let mouseY = 0;
-let glowX = 0;
-let glowY = 0;
+// ===== Mobile Nav =====
+const nav = document.querySelector('.nav');
+const navToggle = document.getElementById('navToggle');
+const navLinks = document.querySelector('.nav-links');
 
-document.addEventListener('mousemove', (e) => {
-  mouseX = e.clientX;
-  mouseY = e.clientY;
+navToggle?.addEventListener('click', () => {
+  const open = nav?.classList.toggle('nav-open');
+  navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  document.body.classList.toggle('nav-locked', Boolean(open));
 });
 
-function animateGlow() {
-  if (cursorGlow) {
+navLinks?.querySelectorAll('a').forEach((link) => {
+  link.addEventListener('click', () => {
+    nav?.classList.remove('nav-open');
+    navToggle?.setAttribute('aria-expanded', 'false');
+    document.body.classList.remove('nav-locked');
+  });
+});
+
+// ===== Cursor Glow (desktop only) =====
+const cursorGlow = document.querySelector<HTMLElement>('.cursor-glow');
+
+if (cursorGlow && !isTouch && !prefersReducedMotion) {
+  let mouseX = 0;
+  let mouseY = 0;
+  let glowX = 0;
+  let glowY = 0;
+
+  document.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+  });
+
+  function animateGlow() {
     glowX += (mouseX - glowX) * 0.08;
     glowY += (mouseY - glowY) * 0.08;
     cursorGlow.style.left = `${glowX}px`;
     cursorGlow.style.top = `${glowY}px`;
+    requestAnimationFrame(animateGlow);
   }
-  requestAnimationFrame(animateGlow);
+  animateGlow();
+} else if (cursorGlow) {
+  cursorGlow.style.display = 'none';
 }
-animateGlow();
 
-// ===== Particle System =====
+// ===== Particle System (lighter on mobile) =====
 const canvas = document.getElementById('particles') as HTMLCanvasElement | null;
 const ctx = canvas?.getContext('2d');
 
@@ -62,7 +87,9 @@ function resizeCanvas() {
 function createParticles() {
   if (!canvas) return;
   particles = [];
-  const count = Math.min(Math.floor(window.innerWidth / 15), 80);
+  const density = isTouch ? 28 : 15;
+  const max = isTouch ? 28 : 80;
+  const count = Math.min(Math.floor(window.innerWidth / density), max);
   for (let i = 0; i < count; i++) {
     particles.push({
       x: Math.random() * canvas.width,
@@ -85,6 +112,7 @@ function drawParticles() {
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   const color = getParticleColor();
+  const linkDist = isTouch ? 80 : 120;
 
   particles.forEach((p, i) => {
     p.x += p.speedX;
@@ -100,79 +128,120 @@ function drawParticles() {
     ctx.fillStyle = `rgba(${color}, ${p.opacity})`;
     ctx.fill();
 
-    particles.slice(i + 1).forEach((p2) => {
-      const dx = p.x - p2.x;
-      const dy = p.y - p2.y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist < 120) {
-        ctx.beginPath();
-        ctx.moveTo(p.x, p.y);
-        ctx.lineTo(p2.x, p2.y);
-        ctx.strokeStyle = `rgba(${color}, ${0.06 * (1 - dist / 120)})`;
-        ctx.lineWidth = 0.5;
-        ctx.stroke();
-      }
-    });
+    if (!isTouch) {
+      particles.slice(i + 1).forEach((p2) => {
+        const dx = p.x - p2.x;
+        const dy = p.y - p2.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < linkDist) {
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(p2.x, p2.y);
+          ctx.strokeStyle = `rgba(${color}, ${0.06 * (1 - dist / linkDist)})`;
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+        }
+      });
+    }
   });
 
   requestAnimationFrame(drawParticles);
 }
 
-if (canvas && ctx) {
+if (canvas && ctx && !prefersReducedMotion) {
   resizeCanvas();
   createParticles();
   drawParticles();
-
   window.addEventListener('resize', () => {
     resizeCanvas();
     createParticles();
   });
+} else if (canvas) {
+  canvas.style.display = 'none';
 }
 
 // ===== Scroll Reveal Animations =====
+function reveal(el: Element) {
+  el.classList.add('visible');
+}
+
+function revealHeroAndNav() {
+  document.querySelectorAll('.hero [data-animate], .nav [data-animate]').forEach(reveal);
+}
+
+// Modules often run after `window.load` — reveal immediately instead of waiting on load.
+revealHeroAndNav();
+requestAnimationFrame(revealHeroAndNav);
+
 const animatedElements = document.querySelectorAll('[data-animate]');
 
-const observer = new IntersectionObserver(
-  (entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-      }
-    });
-  },
-  { threshold: 0.15, rootMargin: '0px 0px -40px 0px' },
-);
+if (prefersReducedMotion) {
+  animatedElements.forEach(reveal);
+} else {
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          reveal(entry.target);
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    {
+      // Gentler on short mobile viewports — older rootMargin hid content forever
+      threshold: 0.05,
+      rootMargin: '0px 0px -8% 0px',
+    },
+  );
 
-animatedElements.forEach((el) => observer.observe(el));
-
-window.addEventListener('load', () => {
-  document.querySelectorAll('.hero [data-animate], .nav [data-animate]').forEach((el) => {
-    el.classList.add('visible');
+  animatedElements.forEach((el) => {
+    // Already in view (e.g. hero): reveal without waiting
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight * 0.92 && rect.bottom > 0) {
+      reveal(el);
+    } else {
+      observer.observe(el);
+    }
   });
-});
 
-// ===== Smooth parallax on orbs =====
+  // Safety net: never leave content invisible if observer misses
+  window.setTimeout(() => {
+    animatedElements.forEach((el) => {
+      if (!el.classList.contains('visible')) reveal(el);
+    });
+  }, 2500);
+}
+
+// ===== Smooth parallax on orbs (desktop only) =====
 const orbs = document.querySelectorAll('.orb');
 
-window.addEventListener('scroll', () => {
-  const scrollY = window.scrollY;
-  orbs.forEach((orb, i) => {
-    const speed = (i + 1) * 0.05;
-    (orb as HTMLElement).style.transform = `translateY(${scrollY * speed}px)`;
-  });
-});
+if (!isTouch && !prefersReducedMotion && orbs.length) {
+  window.addEventListener(
+    'scroll',
+    () => {
+      const scrollY = window.scrollY;
+      orbs.forEach((orb, i) => {
+        const speed = (i + 1) * 0.05;
+        (orb as HTMLElement).style.transform = `translateY(${scrollY * speed}px)`;
+      });
+    },
+    { passive: true },
+  );
+}
 
-// ===== Magnetic button effect =====
-document.querySelectorAll('.btn').forEach((btn) => {
-  btn.addEventListener('mousemove', (e) => {
-    const rect = btn.getBoundingClientRect();
-    const event = e as MouseEvent;
-    const x = event.clientX - rect.left - rect.width / 2;
-    const y = event.clientY - rect.top - rect.height / 2;
-    (btn as HTMLElement).style.transform = `translate(${x * 0.15}px, ${y * 0.15}px)`;
-  });
+// ===== Magnetic button effect (desktop only) =====
+if (!isTouch) {
+  document.querySelectorAll('.btn').forEach((btn) => {
+    btn.addEventListener('mousemove', (e) => {
+      const rect = btn.getBoundingClientRect();
+      const event = e as MouseEvent;
+      const x = event.clientX - rect.left - rect.width / 2;
+      const y = event.clientY - rect.top - rect.height / 2;
+      (btn as HTMLElement).style.transform = `translate(${x * 0.15}px, ${y * 0.15}px)`;
+    });
 
-  btn.addEventListener('mouseleave', () => {
-    (btn as HTMLElement).style.transform = '';
+    btn.addEventListener('mouseleave', () => {
+      (btn as HTMLElement).style.transform = '';
+    });
   });
-});
+}

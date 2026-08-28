@@ -1,0 +1,81 @@
+---
+const plans = [
+  {
+    name: 'Starter',
+    price: '1,500',
+    period: '/month',
+    featured: false,
+    features: [
+      'Single-page restaurant website',
+      'Menu with categories & prices',
+      'Google Maps & contact info',
+      'Phone number for reservations',
+      'Subdomain (yourname.aestheticdine.com)',
+      'Hosting & SSL included',
+    ],
+  },
+  {
+    name: 'Standard',
+    price: '2,500',
+    period: '/month',
+    featured: true,
+    features: [
+      'Everything in Starter',
+      'Photo gallery section',
+      'WhatsApp & social links',
+      'Menu updates (up to 2/month)',
+      'Priority support',
+      'Google indexing setup',
+    ],
+  },
+  {
+    name: 'Premium',
+    price: '4,000',
+    period: '/month',
+    featured: false,
+    features: [
+      'Everything in Standard',
+      'Custom domain setup',
+      'Unlimited menu updates',
+      'Bengali + English toggle',
+      'Monthly performance report',
+      'Dedicated support line',
+    ],
+  },
+];
+---
+
+<section id="pricing" class="pricing">
+  <div class="section-header">
+    <span class="section-label" data-animate="fade-up">Pricing</span>
+    <h2 class="section-title" data-animate="fade-up" data-delay="1">Simple, transparent plans</h2>
+    <p class="pricing-intro" data-animate="fade-up" data-delay="2">
+      All plans include hosting, SSL, and your live restaurant website. Pay monthly via bKash, cards, and more.
+    </p>
+  </div>
+  <div class="pricing-grid">
+    {
+      plans.map((plan, i) => (
+        <article
+          class:list={['pricing-card', plan.featured && 'featured']}
+          data-animate="fade-up"
+          data-delay={String(i + 1)}
+        >
+          <h3>{plan.name}</h3>
+          <div class="pricing-price">
+            ৳{plan.price}
+            <span>{plan.period}</span>
+          </div>
+          <ul class="pricing-features">
+            {plan.features.map((f) => (
+              <li>{f}</li>
+            ))}
+          </ul>
+          <a href="/get-started" class="btn btn-primary" style="width: 100%; justify-content: center;">
+            Get started
+          </a>
+        </article>
+      ))
+    }
+  </div>
+</section>
