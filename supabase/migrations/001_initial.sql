@@ -60,17 +60,6 @@ create table client_requests (
   created_at timestamptz default now()
 );
 
-create table reservations (
-  id uuid primary key default gen_random_uuid(),
-  restaurant_slug text not null,
-  customer_name text not null,
-  phone text not null,
-  date date not null,
-  guests text not null,
-  message text,
-  created_at timestamptz default now()
-);
-
 create table subscriptions (
   id uuid primary key default gen_random_uuid(),
   restaurant_id uuid references restaurants(id) on delete cascade,
@@ -88,16 +77,11 @@ alter table restaurants enable row level security;
 alter table menu_categories enable row level security;
 alter table menu_items enable row level security;
 alter table client_requests enable row level security;
-alter table reservations enable row level security;
 alter table subscriptions enable row level security;
 
 -- Public read for live restaurants
 create policy "Public read live restaurants" on restaurants
   for select using (status = 'live' and subscription_status = 'active');
-
--- Public insert reservations
-create policy "Public insert reservations" on reservations
-  for insert with check (true);
 
 -- Public insert client requests
 create policy "Public insert client requests" on client_requests

@@ -30,18 +30,33 @@ Copy `.env.example` to `.env` and add Supabase keys when ready:
 cp .env.example .env
 ```
 
-Without Supabase, intake forms and reservations log to the console (demo mode).
+Without Supabase, intake forms log to the console (demo mode).
 
-## Deploy to Cloudflare Pages
+## Deploy to Cloudflare
 
-1. Push this repo to GitHub
-2. Cloudflare dashboard → **Workers & Pages** → **Create** → **Pages** → **Connect to Git**
-3. Select this repository
-4. Build settings:
+You have two options. **Option A (Pages)** is simpler if you're new to Cloudflare.
+
+### Option A — Cloudflare Pages (recommended)
+
+1. Cloudflare dashboard → **Workers & Pages** → **Create** → **Pages** → **Connect to Git**
+2. Select **Arib-gz07/restaurant** (or your repo)
+3. Build settings:
    - **Framework preset:** Astro
    - **Build command:** `npm run build`
    - **Build output directory:** `dist`
-5. Deploy — you'll get a `*.pages.dev` URL
+   - **Deploy command:** leave **empty** (do not use `npx wrangler deploy`)
+4. Deploy
+
+### Option B — Workers Builds (what you set up)
+
+If using Workers Builds with a deploy command:
+
+- **Build command:** `npm run build`
+- **Deploy command:** `npx wrangler deploy`
+
+The repo `wrangler.toml` must **not** use `pages_build_output_dir` — that causes a deploy conflict. The current config is fixed for Workers deploy.
+
+After a failed build, open the log, click **Download log**, and check the red error at the bottom of the **Deploying** step.
 
 ### Environment variables on Cloudflare
 
@@ -67,7 +82,7 @@ src/
 ├── components/restaurant/  # Client restaurant components
 ├── layouts/
 ├── pages/
-│   ├── api/                # Intake & reservation endpoints
+│   ├── api/                # Intake endpoint
 │   └── sites/[slug].astro  # Restaurant sites
 ├── lib/                    # Supabase, tenant routing, demo data
 └── middleware.ts           # Subdomain → /sites/[slug]
