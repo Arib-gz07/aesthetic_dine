@@ -1,0 +1,210 @@
+---
+import RestaurantLayout from '../../layouts/RestaurantLayout.astro';
+import { getRestaurantBySlug, isRestaurantVisible } from '../../lib/tenant';
+import type { Restaurant } from '../../lib/types';
+
+const { slug } = Astro.params;
+
+if (!slug) {
+  return Astro.redirect('/');
+}
+
+const restaurant = await getRestaurantBySlug(slug);
+
+if (!restaurant) {
+  return new Response(null, { status: 404, statusText: 'Restaurant not found' });
+}
+
+const visible = isRestaurantVisible(restaurant);
+---
+
+<RestaurantLayout
+  title={visible ? restaurant.name : 'Coming Soon'}
+  description={restaurant.tagline}
+  theme={restaurant.theme}
+>
+  {
+    !visible ? (
+      <div class="rest-coming-soon">
+        <div>
+          <h1>Coming Soon</h1>
+          <p style="color: var(--rest-muted);">{restaurant.name} is preparing something delicious.</p>
+        </div>
+      </div>
+    ) : (
+      <>
+        <header class="rest-nav">
+          <div class="rest-container rest-nav-inner">
+            <a href="#" class="rest-logo">{restaurant.name}</a>
+            <ul class="rest-nav-links">
+              <li><a href="#about">About</a></li>
+              <li><a href="#menu">Menu</a></li>
+              <li><a href="#location">Location</a></li>
+              <li><a href="#contact">Reserve</a></li>
+            </ul>
+            <a href={`tel:${restaurant.phone}`} class="rest-btn rest-btn-primary">Call now</a>
+          </div>
+        </header>
+
+        <section class="rest-hero">
+          <div class="rest-container">
+            <p class="rest-hero-tag">{restaurant.cuisine}</p>
+            <h1>{restaurant.name}</h1>
+            <p>{restaurant.tagline}</p>
+            <div class="rest-hero-actions">
+              <a href="#menu" class="rest-btn rest-btn-primary">View menu</a>
+              <a href="#contact" class="rest-btn rest-btn-outline">Reserve a table</a>
+            </div>
+          </div>
+        </section>
+
+        <section id="about" class="rest-section">
+          <div class="rest-container">
+            <div class="rest-section-header">
+              <span class="rest-section-label">About</span>
+              <h2>Our story</h2>
+            </div>
+            <p class="rest-about-text">{restaurant.about}</p>
+          </div>
+        </section>
+
+        <section id="menu" class="rest-section rest-section-alt">
+          <div class="rest-container">
+            <div class="rest-section-header">
+              <span class="rest-section-label">Menu</span>
+              <h2>What we serve</h2>
+            </div>
+            {restaurant.menu.map((category) => (
+              <div class="rest-menu-category">
+                <h3>{category.name}</h3>
+                <div class="rest-menu-items">
+                  {category.items.map((item) => (
+                    <article class:list={['rest-menu-item', !item.isAvailable && 'unavailable']}>
+                      <div class="rest-menu-item-info">
+                        <h4>{item.name}</h4>
+                        <p>{item.description}</p>
+                      </div>
+                      <span class="rest-menu-item-price">৳{item.price}</span>
+                    </article>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section id="location" class="rest-section">
+          <div class="rest-container">
+            <div class="rest-section-header">
+              <span class="rest-section-label">Visit us</span>
+              <h2>Location & hours</h2>
+            </div>
+            <div class="rest-location-grid">
+              <div class="rest-info-block">
+                <h3>Address</h3>
+                <p>{restaurant.address}</p>
+                <h3 style="margin-top: 1.5rem;">Hours</h3>
+                <p style="white-space: pre-line;">{restaurant.hours}</p>
+                <h3 style="margin-top: 1.5rem;">Contact</h3>
+                <a href={`tel:${restaurant.phone}`}>{restaurant.phone}</a>
+                {restaurant.whatsapp && (
+                  <a href={`https://wa.me/${restaurant.whatsapp.replace(/\D/g, '')}`} target="_blank" rel="noopener">
+                    WhatsApp
+                  </a>
+                )}
+                <a href={`mailto:${restaurant.email}`}>{restaurant.email}</a>
+              </div>
+              <div class="rest-map">
+                <iframe src={restaurant.mapEmbedUrl} loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Map" />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="contact" class="rest-section rest-section-alt">
+          <div class="rest-container">
+            <div class="rest-section-header">
+              <span class="rest-section-label">Reservations</span>
+              <h2>Book a table</h2>
+            </div>
+            <div class="rest-contact-grid">
+              <div class="rest-info-block">
+                <p>Fill in the form and we'll confirm your reservation by phone.</p>
+                {restaurant.facebook && (
+                  <p style="margin-top: 1rem;">
+                    <a href={restaurant.facebook} target="_blank" rel="noopener">Follow us on Facebook</a>
+                  </p>
+                )}
+              </div>
+              <form class="rest-form" id="reservationForm" data-slug={restaurant.slug}>
+                <label>
+                  Your name *
+                  <input type="text" name="name" required />
+                </label>
+                <label>
+                  Phone *
+                  <input type="tel" name="phone" required />
+                </label>
+                <label>
+                  Date *
+                  <input type="date" name="date" required />
+                </label>
+                <label>
+                  Guests *
+                  <select name="guests" required>
+                    <option value="1">1 guest</option>
+                    <option value="2">2 guests</option>
+                    <option value="3">3 guests</option>
+                    <option value="4">4 guests</option>
+                    <option value="5">5 guests</option>
+                    <option value="6+">6+ guests</option>
+                  </select>
+                </label>
+                <label>
+                  Message
+                  <textarea name="message" placeholder="Special requests, allergies, etc."></textarea>
+                </label>
+                <button type="submit" class="rest-btn rest-btn-primary">Submit reservation</button>
+                <div id="reservationMessage" class="form-message" hidden style="margin-top: 0.5rem;"></div>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        <footer class="rest-footer">
+          <p>
+            {restaurant.name} · Powered by <a href="/">Aesthetic Dine</a>
+          </p>
+        </footer>
+
+        <script define:vars={{ slug: restaurant.slug }}>
+          const form = document.getElementById('reservationForm');
+          const msg = document.getElementById('reservationMessage');
+
+          form?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = Object.fromEntries(new FormData(form));
+            msg.hidden = true;
+
+            try {
+              const res = await fetch('/api/reservation', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ...data, restaurantSlug: slug }),
+              });
+              const result = await res.json();
+              if (!res.ok) throw new Error(result.error);
+              msg.textContent = result.message;
+              msg.className = 'form-message success';
+              form.reset();
+            } catch (err) {
+              msg.textContent = err instanceof Error ? err.message : 'Failed to submit.';
+              msg.className = 'form-message error';
+            }
+            msg.hidden = false;
+          });
+        </script>
+      </>
+    )
+  }
+</RestaurantLayout>

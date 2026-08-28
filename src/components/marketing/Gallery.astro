@@ -1,0 +1,33 @@
+---
+const items = [
+  { label: 'Hero & branding', gradient: 'gradient-1', delay: '1', href: '/sites/demo' },
+  { label: 'Menu showcase', gradient: 'gradient-2', delay: '2', href: '/sites/demo#menu' },
+  { label: 'Location & map', gradient: 'gradient-3', delay: '3', href: '/sites/demo#location' },
+  { label: 'Reservations', gradient: 'gradient-4', delay: '4', href: '/sites/demo#contact' },
+  { label: 'Live demo site', gradient: 'gradient-5', delay: '5', wide: true, href: '/sites/demo' },
+];
+---
+
+<section id="gallery" class="gallery">
+  <div class="section-header">
+    <span class="section-label" data-animate="fade-up">Examples</span>
+    <h2 class="section-title" data-animate="fade-up" data-delay="1">What your site includes</h2>
+  </div>
+  <div class="gallery-grid">
+    {
+      items.map((item) => (
+        <a
+          href={item.href}
+          class:list={['gallery-item', item.wide && 'wide']}
+          data-animate="scale-in"
+          data-delay={item.delay}
+          style="text-decoration: none; display: block;"
+        >
+          <div class:list={['gallery-inner', item.gradient]}>
+            <span class="gallery-label">{item.label}</span>
+          </div>
+        </a>
+      ))
+    }
+  </div>
+</section>

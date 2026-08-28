@@ -1,0 +1,97 @@
+---
+import MarketingLayout from '../layouts/MarketingLayout.astro';
+import Nav from '../components/marketing/Nav.astro';
+import Footer from '../components/marketing/Footer.astro';
+---
+
+<MarketingLayout title="Get Started — Aesthetic Dine" description="Tell us about your restaurant and we'll build your website.">
+  <Nav />
+  <main>
+    <section class="page-hero">
+      <span class="section-label" data-animate="fade-up">Get started</span>
+      <h1 class="section-title" data-animate="fade-up" data-delay="1">Tell us about your restaurant</h1>
+      <p data-animate="fade-up" data-delay="2">
+        Fill in the details below. We'll review your request and get back to you within 1–2 business days.
+      </p>
+    </section>
+
+    <form class="intake-form" id="intakeForm" data-animate="fade-up" data-delay="3">
+      <label>
+        Restaurant name *
+        <input type="text" name="restaurantName" required placeholder="e.g. Rahman Biriyani House" />
+      </label>
+      <label>
+        Owner / contact name *
+        <input type="text" name="ownerName" required placeholder="Your full name" />
+      </label>
+      <label>
+        Phone *
+        <input type="tel" name="phone" required placeholder="+880 1XXX-XXXXXX" />
+      </label>
+      <label>
+        Email *
+        <input type="email" name="email" required placeholder="you@restaurant.com" />
+      </label>
+      <label>
+        Cuisine type *
+        <input type="text" name="cuisine" required placeholder="e.g. Bangladeshi, Chinese, Cafe" />
+      </label>
+      <label>
+        Preferred subdomain *
+        <input type="text" name="preferredSlug" required placeholder="e.g. rahman-biriyani" pattern="[a-z0-9-]+" />
+      </label>
+      <label>
+        Short description *
+        <textarea name="description" required placeholder="Tell us about your restaurant, atmosphere, and specialties..."></textarea>
+      </label>
+      <label>
+        Preferred plan
+        <select name="plan">
+          <option value="starter">Starter — ৳1,500/month</option>
+          <option value="standard">Standard — ৳2,500/month</option>
+          <option value="premium">Premium — ৳4,000/month</option>
+        </select>
+      </label>
+      <label>
+        Special requests
+        <textarea name="specialRequests" placeholder="Any specific sections, colors, or features you want..."></textarea>
+      </label>
+      <button type="submit" class="btn btn-primary" style="justify-content: center;">Submit request</button>
+      <div id="formMessage" class="form-message" hidden></div>
+    </form>
+  </main>
+  <Footer />
+
+  <script>
+    const form = document.getElementById('intakeForm') as HTMLFormElement;
+    const message = document.getElementById('formMessage') as HTMLDivElement;
+
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(form));
+      message.hidden = true;
+
+      try {
+        const res = await fetch('/api/intake', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+        const result = await res.json();
+
+        if (res.ok) {
+          message.textContent = result.message || 'Thank you! We will contact you soon.';
+          message.className = 'form-message success';
+          form.reset();
+        } else {
+          throw new Error(result.error || 'Something went wrong');
+        }
+      } catch (err) {
+        message.textContent = err instanceof Error ? err.message : 'Failed to submit. Please try again.';
+        message.className = 'form-message error';
+      }
+
+      message.hidden = false;
+    });
+  </script>
+</MarketingLayout>

@@ -1,0 +1,36 @@
+---
+const cards = [
+  { symbol: '◈', label: 'Elegant design', class: 'card-1' },
+  { symbol: '✦', label: 'Menu & hosting', class: 'card-2' },
+  { symbol: '❋', label: 'Made in Bangladesh', class: 'card-3' },
+];
+---
+
+<section id="about" class="about">
+  <div class="about-content">
+    <div class="about-text" data-animate="fade-right">
+      <span class="section-label">About us</span>
+      <h2 class="section-title">Websites worth dining for</h2>
+      <p>
+        Aesthetic Dine helps restaurant owners across Bangladesh get online without the hassle.
+        No technical knowledge needed — tell us about your restaurant, and we craft a beautiful
+        single-page website with your menu, location, and contact details.
+      </p>
+      <p>
+        Every site is hosted on fast, secure infrastructure with a simple monthly subscription.
+        Focus on your food; we handle your web presence.
+      </p>
+    </div>
+    <div class="about-visual" data-animate="fade-left">
+      {
+        cards.map((card) => (
+          <div class:list={['floating-card', card.class]}>
+            <div class="card-shimmer"></div>
+            <span>{card.symbol}</span>
+            <p>{card.label}</p>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>

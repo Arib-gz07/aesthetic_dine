@@ -1,0 +1,61 @@
+---
+const features = [
+  {
+    title: 'Tell us your vision',
+    description:
+      'Fill out a simple form — your cuisine, menu, photos, and how you want your site to feel. We handle the rest.',
+    icon: 'form',
+    delay: '1',
+  },
+  {
+    title: 'We build & publish',
+    description:
+      'Your single-page site goes live with menu, hours, Google Maps, and a reservation form — on your own subdomain.',
+    icon: 'build',
+    delay: '2',
+  },
+  {
+    title: 'Hosting included',
+    description:
+      'One monthly subscription covers hosting, updates, and support. Pay via bKash, cards, and more through SSLCommerz.',
+    icon: 'host',
+    delay: '3',
+  },
+];
+---
+
+<section id="features" class="features">
+  <div class="section-header">
+    <span class="section-label" data-animate="fade-up">How it works</span>
+    <h2 class="section-title" data-animate="fade-up" data-delay="1">From idea to live site</h2>
+  </div>
+  <div class="features-grid">
+    {
+      features.map((feature) => (
+        <article class="feature-card" data-animate="fade-up" data-delay={feature.delay}>
+          <div class="feature-icon">
+            {feature.icon === 'form' && (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" />
+              </svg>
+            )}
+            {feature.icon === 'build' && (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+              </svg>
+            )}
+            {feature.icon === 'host' && (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="2" y="3" width="20" height="14" rx="2" />
+                <path d="M8 21h8M12 17v4" />
+              </svg>
+            )}
+          </div>
+          <h3>{feature.title}</h3>
+          <p>{feature.description}</p>
+        </article>
+      ))
+    }
+  </div>
+</section>
