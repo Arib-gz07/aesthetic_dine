@@ -39,7 +39,7 @@ You have two options. **Option A (Pages)** is simpler if you're new to Cloudflar
 ### Option A — Cloudflare Pages (recommended)
 
 1. Cloudflare dashboard → **Workers & Pages** → **Create** → **Pages** → **Connect to Git**
-2. Select **Arib-gz07/restaurant** (or your repo)
+2. Select **Arib-gz07/aesthetic-dine** (or your repo)
 3. Build settings:
    - **Framework preset:** Astro
    - **Build command:** `npm run build`
