@@ -107,21 +107,13 @@ a {
   align-items: center;
   justify-content: space-between;
   padding: 1.25rem 3rem;
-  background: color-mix(in srgb, var(--bg-primary) 88%, transparent);
+  background: var(--bg-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border-glass);
   transition:
     background var(--transition-theme),
     border-color var(--transition-theme);
-}
-
-@supports (backdrop-filter: blur(12px)) {
-  @media (hover: hover) and (pointer: fine) {
-    .nav {
-      background: var(--bg-glass);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-    }
-  }
 }
 
 .logo {
@@ -1054,28 +1046,8 @@ body.nav-locked {
 
   .orb-1,
   .orb-2,
-  .orb-3,
-  .hero-bg {
-    display: none !important;
-  }
-
-  .title-line {
-    animation: none;
-    background-position: 0% center;
-  }
-
-  #particles,
-  .cursor-glow {
-    display: none !important;
-  }
-
-  .scroll-indicator {
-    display: none;
-  }
-
-  section:not(.hero) {
-    content-visibility: auto;
-    contain-intrinsic-size: 1px 800px;
+  .orb-3 {
+    filter: blur(60px);
   }
 
   section {
