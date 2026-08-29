@@ -700,20 +700,35 @@ section {
 
 .floating-card {
   position: absolute;
-  background: var(--bg-glass);
+  z-index: 1;
+  min-width: 11.5rem;
+  background: color-mix(in srgb, var(--bg-primary) 72%, var(--bg-glass));
   border: 1px solid var(--border-glass);
   border-radius: 16px;
-  padding: 1.5rem;
+  padding: 1.35rem 1.5rem;
   backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
   box-shadow: var(--shadow-soft);
   overflow: hidden;
+  isolation: isolate;
   transition:
     background var(--transition-theme),
-    border-color var(--transition-theme);
+    border-color var(--transition-theme),
+    z-index 0s;
+}
+
+.floating-card:hover {
+  z-index: 5;
+}
+
+.floating-card span,
+.floating-card p {
+  position: relative;
+  z-index: 2;
 }
 
 .floating-card span {
@@ -722,14 +737,19 @@ section {
 }
 
 .floating-card p {
+  margin: 0;
   font-size: 0.8125rem;
-  color: var(--text-secondary);
+  color: var(--text-primary);
   font-weight: 400;
+  text-align: center;
+  text-wrap: balance;
 }
 
 .card-shimmer {
   position: absolute;
   inset: 0;
+  z-index: 0;
+  pointer-events: none;
   background: linear-gradient(
     105deg,
     transparent 40%,
@@ -743,30 +763,33 @@ section {
 }
 
 .card-1 {
-  top: 10%;
-  left: 10%;
+  top: 6%;
+  left: 4%;
+  z-index: 3;
   animation: float-card 6s ease-in-out infinite;
 }
 
 .card-2 {
-  top: 35%;
-  right: 5%;
+  top: 38%;
+  right: 2%;
+  z-index: 2;
   animation: float-card 6s ease-in-out infinite -2s;
 }
 
 .card-3 {
-  bottom: 10%;
-  left: 25%;
+  bottom: 6%;
+  left: 18%;
+  z-index: 1;
   animation: float-card 6s ease-in-out infinite -4s;
 }
 
 @keyframes float-card {
   0%,
   100% {
-    transform: translateY(0) rotate(0deg);
+    transform: translateY(0);
   }
   50% {
-    transform: translateY(-15px) rotate(2deg);
+    transform: translateY(-12px);
   }
 }
 
@@ -1079,7 +1102,29 @@ body.nav-locked {
   }
 
   .about-visual {
-    height: 260px;
+    height: 300px;
+    max-width: 340px;
+    margin: 0 auto;
+  }
+
+  .floating-card {
+    min-width: 10.25rem;
+    padding: 1.15rem 1.25rem;
+  }
+
+  .card-1 {
+    top: 4%;
+    left: 2%;
+  }
+
+  .card-2 {
+    top: 36%;
+    right: 0;
+  }
+
+  .card-3 {
+    bottom: 4%;
+    left: 14%;
   }
 
   .gallery-grid {

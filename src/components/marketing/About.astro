@@ -27,8 +27,8 @@ const cards = [
       {
         cards.map((card) => (
           <div class:list={['floating-card', card.class]}>
-            <div class="card-shimmer"></div>
-            <span>{card.symbol}</span>
+            <div class="card-shimmer" aria-hidden="true"></div>
+            <span aria-hidden="true">{card.symbol}</span>
             <p>{card.label}</p>
           </div>
         ))
