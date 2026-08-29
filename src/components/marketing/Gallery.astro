@@ -1,10 +1,36 @@
 ---
 const items = [
-  { label: 'Hero & branding', gradient: 'gradient-1', delay: '1', href: '/sites/demo' },
-  { label: 'Menu showcase', gradient: 'gradient-2', delay: '2', href: '/sites/demo#menu' },
-  { label: 'Location & map', gradient: 'gradient-3', delay: '3', href: '/sites/demo#location' },
-  { label: 'Phone reservations', gradient: 'gradient-4', delay: '4', href: '/sites/demo#contact' },
-  { label: 'Live demo site', gradient: 'gradient-5', delay: '5', wide: true, href: '/sites/demo' },
+  {
+    label: 'Hero & branding',
+    image: 'https://aesthetic-dine.sirv.com/Aesthetic%20Dine/SS/demo-kitchen-hero.png',
+    delay: '1',
+    href: '/sites/demo',
+  },
+  {
+    label: 'Menu showcase',
+    image: 'https://aesthetic-dine.sirv.com/Aesthetic%20Dine/SS/demo-kitchen-menu.png',
+    delay: '2',
+    href: '/sites/demo#menu',
+  },
+  {
+    label: 'Location & map',
+    image: 'https://aesthetic-dine.sirv.com/Aesthetic%20Dine/SS/demo-kitchen-location.png',
+    delay: '3',
+    href: '/sites/demo#location',
+  },
+  {
+    label: 'Phone reservations',
+    image: 'https://aesthetic-dine.sirv.com/Aesthetic%20Dine/SS/demo-kitchen-contact.png',
+    delay: '4',
+    href: '/sites/demo#contact',
+  },
+  {
+    label: 'Live demo site',
+    image: 'https://aesthetic-dine.sirv.com/Aesthetic%20Dine/SS/demo-kitchen-live.png',
+    delay: '5',
+    wide: true,
+    href: '/sites/demo',
+  },
 ];
 ---
 
@@ -23,7 +49,8 @@ const items = [
           data-delay={item.delay}
           style="text-decoration: none; display: block;"
         >
-          <div class:list={['gallery-inner', item.gradient]}>
+          <div class="gallery-inner">
+            <img src={item.image} alt={item.label} class="gallery-image" loading="lazy" width="1200" height="900" />
             <span class="gallery-label">{item.label}</span>
           </div>
         </a>

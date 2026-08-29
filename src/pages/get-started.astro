@@ -11,7 +11,7 @@ import Footer from '../components/marketing/Footer.astro';
       <span class="section-label" data-animate="fade-up">Get started</span>
       <h1 class="section-title" data-animate="fade-up" data-delay="1">Tell us about your restaurant</h1>
       <p data-animate="fade-up" data-delay="2">
-        Fill in the details below. We'll review your request and get back to you within 1–2 business days.
+        Fill in the details below. Upload your logo and menu images — they go to Google Drive in a folder named after your restaurant.
       </p>
     </section>
 
@@ -38,7 +38,22 @@ import Footer from '../components/marketing/Footer.astro';
       </label>
       <label>
         Preferred subdomain *
-        <input type="text" name="preferredSlug" required placeholder="e.g. rahman-biriyani" pattern="[a-z0-9-]+" />
+        <input
+          type="text"
+          name="preferredSlug"
+          required
+          placeholder="e.g. rahman-biriyani"
+          pattern="[a-z0-9-]+"
+          title="Lowercase letters, numbers, and hyphens only"
+        />
+      </label>
+      <label>
+        Website theme *
+        <select name="theme" required>
+          <option value="warm">Warm</option>
+          <option value="classic">Classic</option>
+          <option value="modern">Modern</option>
+        </select>
       </label>
       <label>
         Short description *
@@ -56,7 +71,47 @@ import Footer from '../components/marketing/Footer.astro';
         Special requests
         <textarea name="specialRequests" placeholder="Any specific sections, colors, or features you want..."></textarea>
       </label>
-      <button type="submit" class="btn btn-primary" style="justify-content: center;">Submit request</button>
+
+      <div class="upload-box">
+        <h3 class="upload-title">Logo, cover &amp; menu</h3>
+        <p class="form-hint">
+          Max <strong>10 MB</strong> each, up to <strong>10 files</strong>. Use JPG, PNG, WebP, or PDF.
+        </p>
+        <div class="file-field">
+          <span class="file-field__label">Logo</span>
+          <label class="file-picker">
+            <input type="file" name="logo" accept="image/jpeg,image/png,image/webp" />
+            <span class="btn btn-primary file-picker__btn">Choose file</span>
+            <span class="file-picker__name" data-empty="true">No file chosen</span>
+          </label>
+        </div>
+        <div class="file-field">
+          <span class="file-field__label">Cover / hero photo</span>
+          <label class="file-picker">
+            <input type="file" name="cover" accept="image/jpeg,image/png,image/webp" />
+            <span class="btn btn-primary file-picker__btn">Choose file</span>
+            <span class="file-picker__name" data-empty="true">No file chosen</span>
+          </label>
+        </div>
+        <div class="file-field">
+          <span class="file-field__label">Menu (PDF or photos)</span>
+          <label class="file-picker">
+            <input
+              type="file"
+              name="menu"
+              accept="image/jpeg,image/png,image/webp,application/pdf"
+              multiple
+            />
+            <span class="btn btn-primary file-picker__btn">Choose files</span>
+            <span class="file-picker__name" data-empty="true">No file chosen</span>
+          </label>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary submit-btn" id="submitBtn" style="justify-content: center;">
+        <span class="submit-btn__fill" id="submitProgress" aria-hidden="true"></span>
+        <span class="submit-btn__label" id="submitLabel">Upload images and submit form</span>
+      </button>
       <div id="formMessage" class="form-message" hidden></div>
     </form>
   </main>
@@ -65,33 +120,173 @@ import Footer from '../components/marketing/Footer.astro';
   <script>
     const form = document.getElementById('intakeForm') as HTMLFormElement;
     const message = document.getElementById('formMessage') as HTMLDivElement;
+    const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
+    const submitProgress = document.getElementById('submitProgress') as HTMLSpanElement;
+    const submitLabel = document.getElementById('submitLabel') as HTMLSpanElement;
+    const DEFAULT_LABEL = 'Upload images and submit form';
+    const MAX_BYTES = 10 * 1024 * 1024;
+    const MAX_FILES = 10;
+
+    function updateFilePickerName(input: HTMLInputElement) {
+      const nameEl = input.closest('.file-picker')?.querySelector('.file-picker__name');
+      if (!(nameEl instanceof HTMLElement)) return;
+      const files = input.files;
+      if (!files?.length) {
+        nameEl.textContent = 'No file chosen';
+        nameEl.dataset.empty = 'true';
+        return;
+      }
+      if (files.length === 1) {
+        nameEl.textContent = files[0].name;
+      } else {
+        nameEl.textContent = `${files.length} files selected`;
+      }
+      nameEl.dataset.empty = 'false';
+    }
+
+    function resetFilePickerNames() {
+      form.querySelectorAll('.file-picker input[type="file"]').forEach((el) => {
+        if (el instanceof HTMLInputElement) updateFilePickerName(el);
+      });
+    }
+
+    form.querySelectorAll('.file-picker input[type="file"]').forEach((el) => {
+      el.addEventListener('change', () => {
+        if (el instanceof HTMLInputElement) updateFilePickerName(el);
+      });
+    });
+
+    function setProgress(percent: number, label: string, busy = true) {
+      const clamped = Math.max(0, Math.min(100, percent));
+      submitProgress.style.width = `${clamped}%`;
+      submitBtn.classList.toggle('is-busy', busy);
+      submitLabel.innerHTML = busy
+        ? `<span class="submit-btn__spinner" aria-hidden="true"></span><span>${label}</span>`
+        : label;
+      submitBtn.setAttribute('aria-busy', busy ? 'true' : 'false');
+    }
+
+    function resetButton() {
+      submitBtn.disabled = false;
+      setProgress(0, DEFAULT_LABEL, false);
+      submitProgress.style.width = '0%';
+    }
+
+    function fileToBase64(file: File): Promise<string> {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const result = String(reader.result || '');
+          const base64 = result.includes(',') ? result.split(',')[1] : result;
+          resolve(base64 || '');
+        };
+        reader.onerror = () => reject(new Error('Failed to read file'));
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function collectFiles(formEl: HTMLFormElement) {
+      const fields = [
+        { name: 'logo', multiple: false },
+        { name: 'cover', multiple: false },
+        { name: 'menu', multiple: true },
+      ] as const;
+
+      const files: Array<{ field: string; name: string; mimeType: string; data: string }> = [];
+
+      for (const field of fields) {
+        const input = formEl.elements.namedItem(field.name) as HTMLInputElement | null;
+        const list = input?.files;
+        if (!list?.length) continue;
+
+        const selected = field.multiple ? Array.from(list) : [list[0]];
+        for (const file of selected) {
+          if (file.size > MAX_BYTES) {
+            throw new Error(`${file.name} is too large. Max size is 10 MB per file.`);
+          }
+          const data = await fileToBase64(file);
+          files.push({
+            field: field.name,
+            name: `${field.name}-${file.name}`,
+            mimeType: file.type || 'application/octet-stream',
+            data,
+          });
+        }
+      }
+
+      if (files.length > MAX_FILES) {
+        throw new Error(`Please upload at most ${MAX_FILES} files total.`);
+      }
+
+      return files;
+    }
 
     form?.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const data = Object.fromEntries(new FormData(form));
       message.hidden = true;
+      submitBtn.disabled = true;
 
       try {
-        const res = await fetch('/api/intake', {
+        const raw = Object.fromEntries(new FormData(form));
+        const { logo: _l, cover: _c, menu: _m, ...fields } = raw as Record<string, FormDataEntryValue>;
+
+        setProgress(8, 'Preparing files…');
+        const files = await collectFiles(form);
+        const totalSteps = files.length + 1;
+
+        setProgress(Math.round((1 / totalSteps) * 100 * 0.85), 'Saving your details…');
+
+        const createRes = await fetch('/api/intake', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data),
+          body: JSON.stringify({ action: 'create', ...fields }),
         });
-        const result = await res.json();
-
-        if (res.ok) {
-          message.textContent = result.message || 'Thank you! We will contact you soon.';
-          message.className = 'form-message success';
-          form.reset();
-        } else {
-          throw new Error(result.error || 'Something went wrong');
+        const created = await createRes.json();
+        if (!createRes.ok || !created.folderId) {
+          throw new Error(created.error || 'Something went wrong');
         }
+
+        let uploadedCount = 0;
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          const step = i + 2;
+          const percent = Math.round((step / totalSteps) * 100);
+          setProgress(Math.min(percent, 96), `Uploading ${i + 1} of ${files.length}…`);
+
+          const uploadRes = await fetch('/api/intake', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'upload',
+              folderId: created.folderId,
+              file,
+            }),
+          });
+          const uploaded = await uploadRes.json();
+          if (!uploadRes.ok) {
+            throw new Error(uploaded.error || `Failed to upload ${file.name}`);
+          }
+          uploadedCount += 1;
+        }
+
+        setProgress(100, 'Done!', true);
+        await new Promise((r) => setTimeout(r, 350));
+
+        message.textContent =
+          uploadedCount > 0
+            ? `Thanks! We’ve got your restaurant details and ${uploadedCount} image${uploadedCount === 1 ? '' : 's'}. We’ll review everything and reach out within 1–2 business days.`
+            : created.message ||
+              'Thanks! We’ve got your restaurant details. We’ll review everything and reach out within 1–2 business days.';
+        message.className = 'form-message success';
+        form.reset();
+        resetFilePickerNames();
       } catch (err) {
         message.textContent = err instanceof Error ? err.message : 'Failed to submit. Please try again.';
         message.className = 'form-message error';
+      } finally {
+        resetButton();
+        message.hidden = false;
       }
-
-      message.hidden = false;
     });
   </script>
 </MarketingLayout>
