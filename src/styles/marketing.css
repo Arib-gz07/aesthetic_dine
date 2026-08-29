@@ -299,7 +299,7 @@ a {
 
 .hero-content {
   position: relative;
-  z-index: 2;
+  z-index: 1;
   text-align: center;
   max-width: 720px;
 }
@@ -453,9 +453,7 @@ a {
 }
 
 .btn-ghost {
-  position: relative;
-  z-index: 1;
-  background: color-mix(in srgb, var(--bg-primary) 72%, var(--bg-glass));
+  background: var(--bg-glass);
   border: 1px solid var(--border-glass);
   backdrop-filter: blur(10px);
   color: var(--text-primary);
@@ -471,8 +469,7 @@ a {
   bottom: 2rem;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 0;
-  pointer-events: none;
+  z-index: 1;
 }
 
 .scroll-line {
@@ -481,12 +478,6 @@ a {
   height: 60px;
   background: linear-gradient(to bottom, var(--accent-1), transparent);
   animation: scroll-pulse 2s ease-in-out infinite;
-}
-
-@media (max-height: 820px) {
-  .scroll-indicator {
-    display: none;
-  }
 }
 
 @keyframes scroll-pulse {
