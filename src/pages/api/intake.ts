@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { getSecret } from 'astro:env/server';
 
 type IntakeFile = {
   field: string;
@@ -125,10 +126,21 @@ function successMessage(fileCount: number) {
   return 'Thanks! We’ve got your restaurant details. We’ll review everything and reach out within 1–2 business days.';
 }
 
+/** Prefer Cloudflare runtime secrets; fall back to Vite/.env for local dev. */
+function getWebAppUrl(): string | undefined {
+  const fromRuntime = getSecret('GOOGLE_SHEETS_WEBAPP_URL');
+  if (typeof fromRuntime === 'string' && fromRuntime.trim()) return fromRuntime.trim();
+
+  const fromMeta = import.meta.env.GOOGLE_SHEETS_WEBAPP_URL;
+  if (typeof fromMeta === 'string' && fromMeta.trim()) return fromMeta.trim();
+
+  return undefined;
+}
+
 export const POST: APIRoute = async ({ request }) => {
   try {
     const body = (await request.json()) as IntakeBody;
-    const webAppUrl = import.meta.env.GOOGLE_SHEETS_WEBAPP_URL;
+    const webAppUrl = getWebAppUrl();
     const action = body.action || 'create';
 
     if (action === 'upload') {
@@ -148,10 +160,19 @@ export const POST: APIRoute = async ({ request }) => {
       }
 
       if (!webAppUrl) {
-        return new Response(JSON.stringify({ ok: true, uploaded: checked.file!.name }), {
-          status: 200,
-          headers: { 'Content-Type': 'application/json' },
-        });
+        if (import.meta.env.DEV) {
+          return new Response(JSON.stringify({ ok: true, uploaded: checked.file!.name }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+          });
+        }
+        return new Response(
+          JSON.stringify({
+            error:
+              'Form backend is not configured on this server. Set GOOGLE_SHEETS_WEBAPP_URL as a Cloudflare Worker secret, then redeploy.',
+          }),
+          { status: 503, headers: { 'Content-Type': 'application/json' } },
+        );
       }
 
       const uploaded = await postToAppsScript(webAppUrl, {
@@ -209,14 +230,23 @@ export const POST: APIRoute = async ({ request }) => {
     };
 
     if (!webAppUrl) {
-      console.log('Intake demo mode:', orderPayload);
+      if (import.meta.env.DEV) {
+        console.log('Intake demo mode:', orderPayload);
+        return new Response(
+          JSON.stringify({
+            ok: true,
+            folderId: 'demo-folder',
+            message: 'Thank you! We received your request (demo mode — Sheets URL not configured).',
+          }),
+          { status: 200, headers: { 'Content-Type': 'application/json' } },
+        );
+      }
       return new Response(
         JSON.stringify({
-          ok: true,
-          folderId: 'demo-folder',
-          message: 'Thank you! We received your request (demo mode — Sheets URL not configured).',
+          error:
+            'Form backend is not configured on this server. Set GOOGLE_SHEETS_WEBAPP_URL as a Cloudflare Worker secret, then redeploy.',
         }),
-        { status: 200, headers: { 'Content-Type': 'application/json' } },
+        { status: 503, headers: { 'Content-Type': 'application/json' } },
       );
     }
 

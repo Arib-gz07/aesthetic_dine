@@ -60,7 +60,16 @@ After a failed build, open the log, click **Download log**, and check the red er
 
 ### Environment variables on Cloudflare
 
-Add the same vars from `.env.example` in Pages → Settings → Environment variables.
+The intake form needs `GOOGLE_SHEETS_WEBAPP_URL` at **runtime** (not only at build time).
+
+1. Cloudflare dashboard → **Workers & Pages** → **aesthetic-dine**
+2. **Settings** → **Variables and Secrets**
+3. Add:
+   - `GOOGLE_SHEETS_WEBAPP_URL` — as a **Secret**, value = your Apps Script `/exec` URL (same as local `.env`)
+   - `PUBLIC_MAIN_DOMAIN` — as a plain text variable (e.g. `aestheticdine.com`) when you use a custom domain
+4. Redeploy (or save secrets and trigger a new deployment) so the Worker picks them up
+
+Local `.env` is enough for `astro dev`. Production does **not** read `.env`; without the Cloudflare secret the form runs in demo mode and nothing is written to Sheets/Drive.
 
 ### Custom domain (later)
 

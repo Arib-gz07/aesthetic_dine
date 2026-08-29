@@ -1,5 +1,5 @@
 // @ts-check
-import { defineConfig } from 'astro/config';
+import { defineConfig, envField } from 'astro/config';
 import cloudflare from '@astrojs/cloudflare';
 
 /** Stabilize Cloudflare workerd + Vite SSR optimizer for local `astro dev`. */
@@ -31,6 +31,23 @@ export default defineConfig({
   }),
   session: false,
   site: 'https://aesthetic-dine.workers.dev',
+  env: {
+    schema: {
+      // Runtime secret on Cloudflare — do not rely on import.meta.env alone
+      // (that is build-time only and misses Worker secrets).
+      GOOGLE_SHEETS_WEBAPP_URL: envField.string({
+        context: 'server',
+        access: 'secret',
+        optional: true,
+      }),
+      PUBLIC_MAIN_DOMAIN: envField.string({
+        context: 'server',
+        access: 'public',
+        optional: true,
+        default: 'aestheticdine.com',
+      }),
+    },
+  },
   vite: {
     plugins: [stabilizeCloudflareOptimizeDeps()],
   },
