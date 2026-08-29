@@ -63,75 +63,73 @@ if (cursorGlow && !isTouch && !prefersReducedMotion) {
   cursorGlow.style.display = 'none';
 }
 
-// ===== Particle System (desktop only — skip on mobile for Lighthouse) =====
+// ===== Particle System (lighter on mobile) =====
 const canvas = document.getElementById('particles') as HTMLCanvasElement | null;
+const ctx = canvas?.getContext('2d');
 
-if (canvas && !isTouch && !prefersReducedMotion) {
-  const ctx = canvas.getContext('2d', { alpha: true });
+interface Particle {
+  x: number;
+  y: number;
+  radius: number;
+  speedX: number;
+  speedY: number;
+  opacity: number;
+}
 
-  interface Particle {
-    x: number;
-    y: number;
-    radius: number;
-    speedX: number;
-    speedY: number;
-    opacity: number;
+let particles: Particle[] = [];
+
+function resizeCanvas() {
+  if (!canvas) return;
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+
+function createParticles() {
+  if (!canvas) return;
+  particles = [];
+  const density = isTouch ? 28 : 15;
+  const max = isTouch ? 28 : 80;
+  const count = Math.min(Math.floor(window.innerWidth / density), max);
+  for (let i = 0; i < count; i++) {
+    particles.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      radius: Math.random() * 2 + 0.5,
+      speedX: (Math.random() - 0.5) * 0.3,
+      speedY: (Math.random() - 0.5) * 0.3,
+      opacity: Math.random() * 0.5 + 0.1,
+    });
   }
+}
 
-  let particles: Particle[] = [];
-  let rafId = 0;
-  let running = false;
+function getParticleColor() {
+  const theme = html.getAttribute('data-theme');
+  return theme === 'dark' ? '192, 132, 252' : '147, 51, 234';
+}
 
-  function resizeCanvas() {
-    if (!canvas) return;
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-  }
+function drawParticles() {
+  if (!canvas || !ctx) return;
 
-  function createParticles() {
-    if (!canvas) return;
-    particles = [];
-    const count = Math.min(Math.floor(window.innerWidth / 18), 64);
-    for (let i = 0; i < count; i++) {
-      particles.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        radius: Math.random() * 2 + 0.5,
-        speedX: (Math.random() - 0.5) * 0.3,
-        speedY: (Math.random() - 0.5) * 0.3,
-        opacity: Math.random() * 0.5 + 0.1,
-      });
-    }
-  }
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const color = getParticleColor();
+  const linkDist = isTouch ? 80 : 120;
 
-  function getParticleColor() {
-    const theme = html.getAttribute('data-theme');
-    return theme === 'dark' ? '192, 132, 252' : '147, 51, 234';
-  }
+  particles.forEach((p, i) => {
+    p.x += p.speedX;
+    p.y += p.speedY;
 
-  function drawParticles() {
-    if (!canvas || !ctx || !running) return;
+    if (p.x < 0) p.x = canvas.width;
+    if (p.x > canvas.width) p.x = 0;
+    if (p.y < 0) p.y = canvas.height;
+    if (p.y > canvas.height) p.y = 0;
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    const color = getParticleColor();
-    const linkDist = 120;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(${color}, ${p.opacity})`;
+    ctx.fill();
 
-    particles.forEach((p, i) => {
-      p.x += p.speedX;
-      p.y += p.speedY;
-
-      if (p.x < 0) p.x = canvas.width;
-      if (p.x > canvas.width) p.x = 0;
-      if (p.y < 0) p.y = canvas.height;
-      if (p.y > canvas.height) p.y = 0;
-
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(${color}, ${p.opacity})`;
-      ctx.fill();
-
-      for (let j = i + 1; j < particles.length; j++) {
-        const p2 = particles[j];
+    if (!isTouch) {
+      particles.slice(i + 1).forEach((p2) => {
         const dx = p.x - p2.x;
         const dy = p.y - p2.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
@@ -143,45 +141,23 @@ if (canvas && !isTouch && !prefersReducedMotion) {
           ctx.lineWidth = 0.5;
           ctx.stroke();
         }
-      }
-    });
-
-    rafId = requestAnimationFrame(drawParticles);
-  }
-
-  function start() {
-    if (running) return;
-    running = true;
-    resizeCanvas();
-    createParticles();
-    drawParticles();
-  }
-
-  function stop() {
-    running = false;
-    cancelAnimationFrame(rafId);
-    ctx?.clearRect(0, 0, canvas.width, canvas.height);
-  }
-
-  // Defer particles until after first paint
-  window.setTimeout(() => start(), 500);
-
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden) stop();
-    else start();
+      });
+    }
   });
 
-  window.addEventListener(
-    'resize',
-    () => {
-      if (!running) return;
-      resizeCanvas();
-      createParticles();
-    },
-    { passive: true },
-  );
+  requestAnimationFrame(drawParticles);
+}
+
+if (canvas && ctx && !prefersReducedMotion) {
+  resizeCanvas();
+  createParticles();
+  drawParticles();
+  window.addEventListener('resize', () => {
+    resizeCanvas();
+    createParticles();
+  });
 } else if (canvas) {
-  canvas.remove();
+  canvas.style.display = 'none';
 }
 
 // ===== Scroll Reveal Animations =====
@@ -189,9 +165,17 @@ function reveal(el: Element) {
   el.classList.add('visible');
 }
 
+function revealHeroAndNav() {
+  document.querySelectorAll('.hero [data-animate], .nav [data-animate]').forEach(reveal);
+}
+
+// Modules often run after `window.load` — reveal immediately instead of waiting on load.
+revealHeroAndNav();
+requestAnimationFrame(revealHeroAndNav);
+
 const animatedElements = document.querySelectorAll('[data-animate]');
 
-if (prefersReducedMotion || animatedElements.length === 0) {
+if (prefersReducedMotion) {
   animatedElements.forEach(reveal);
 } else {
   const observer = new IntersectionObserver(
@@ -204,12 +188,14 @@ if (prefersReducedMotion || animatedElements.length === 0) {
       });
     },
     {
+      // Gentler on short mobile viewports — older rootMargin hid content forever
       threshold: 0.05,
       rootMargin: '0px 0px -8% 0px',
     },
   );
 
   animatedElements.forEach((el) => {
+    // Already in view (e.g. hero): reveal without waiting
     const rect = el.getBoundingClientRect();
     if (rect.top < window.innerHeight * 0.92 && rect.bottom > 0) {
       reveal(el);
@@ -218,6 +204,7 @@ if (prefersReducedMotion || animatedElements.length === 0) {
     }
   });
 
+  // Safety net: never leave content invisible if observer misses
   window.setTimeout(() => {
     animatedElements.forEach((el) => {
       if (!el.classList.contains('visible')) reveal(el);

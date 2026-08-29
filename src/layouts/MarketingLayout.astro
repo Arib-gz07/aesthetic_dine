@@ -1,5 +1,5 @@
 ---
-import marketingStylesHref from '../styles/marketing.css?url';
+import '../styles/marketing.css';
 
 interface Props {
   title?: string;
@@ -13,236 +13,37 @@ const {
 ---
 
 <!doctype html>
-<html lang="en" data-theme="dark" class="css-loading">
+<html lang="en" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
-    <title>{title}</title>
     <link rel="icon" type="image/png" href="https://aesthetic-design.sirv.com/Aesthetic%20Dine/Images/aesthetic-dine-favicon.png" />
-    <style is:inline>
-      :root {
-        --font-display: Georgia, 'Times New Roman', serif;
-        --font-body: system-ui, -apple-system, 'Segoe UI', sans-serif;
-        --bg-primary: #0a0a0f;
-        --text-primary: #f0eef5;
-        --text-secondary: rgba(240, 238, 245, 0.65);
-        --accent-1: #c084fc;
-        --accent-2: #f472b6;
-        --border-glass: rgba(255, 255, 255, 0.08);
-        --bg-glass: rgba(255, 255, 255, 0.04);
-      }
-      [data-theme='light'] {
-        --bg-primary: #faf8fc;
-        --text-primary: #1a1520;
-        --text-secondary: rgba(26, 21, 32, 0.65);
-        --accent-1: #9333ea;
-        --accent-2: #db2777;
-        --border-glass: rgba(0, 0, 0, 0.06);
-        --bg-glass: rgba(255, 255, 255, 0.7);
-      }
-      *,
-      *::before,
-      *::after {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
-      html {
-        background: var(--bg-primary);
-      }
-      body {
-        font-family: var(--font-body);
-        background: var(--bg-primary);
-        color: var(--text-primary);
-        line-height: 1.6;
-        overflow-x: hidden;
-      }
-      a {
-        color: inherit;
-        text-decoration: none;
-      }
-      .nav {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        z-index: 100;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 1rem 1.25rem;
-        background: color-mix(in srgb, var(--bg-primary) 88%, transparent);
-        border-bottom: 1px solid var(--border-glass);
-      }
-      .logo {
-        font-family: var(--font-display);
-        font-size: 1.5rem;
-        font-weight: 600;
-        letter-spacing: 0.02em;
-      }
-      .nav-toggle {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        gap: 6px;
-        width: 44px;
-        height: 44px;
-        border: 1px solid var(--border-glass);
-        border-radius: 12px;
-        background: transparent;
-        color: var(--text-primary);
-      }
-      .nav-toggle span {
-        display: block;
-        width: 18px;
-        height: 1.5px;
-        margin: 0 auto;
-        background: currentColor;
-      }
-      .hero {
-        position: relative;
-        min-height: 100svh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 6rem 1.25rem 3rem;
-      }
-      .hero-content {
-        position: relative;
-        z-index: 1;
-        text-align: center;
-        max-width: 720px;
-        width: 100%;
-      }
-      .hero-tag {
-        font-size: 0.875rem;
-        letter-spacing: 0.16em;
-        text-transform: uppercase;
-        color: var(--accent-1);
-        margin-bottom: 1rem;
-        font-weight: 500;
-      }
-      .hero-title {
-        font-family: var(--font-display);
-        font-size: clamp(2.75rem, 16vw, 4.5rem);
-        font-weight: 600;
-        line-height: 1;
-        margin-bottom: 1.5rem;
-      }
-      .title-line {
-        display: inline-block;
-        background: linear-gradient(135deg, var(--text-primary), var(--accent-1), var(--accent-2));
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-        color: transparent;
-      }
-      .hero-subtitle {
-        font-size: 1rem;
-        color: var(--text-secondary);
-        max-width: 520px;
-        margin: 0 auto 1.75rem;
-        font-weight: 300;
-      }
-      .hero-actions {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-        align-items: stretch;
-      }
-      .btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0.875rem 2rem;
-        border-radius: 100px;
-        font-size: 0.875rem;
-        font-weight: 500;
-        letter-spacing: 0.05em;
-      }
-      .btn-primary {
-        background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
-        color: #fff;
-        border: none;
-        box-shadow: 0 4px 20px rgba(192, 132, 252, 0.3);
-      }
-      .btn-ghost {
-        background: var(--bg-glass);
-        border: 1px solid var(--border-glass);
-        color: var(--text-primary);
-      }
-      /* Defer non-critical chrome until full CSS arrives */
-      .css-loading .nav-links,
-      .css-loading .nav-cta-desktop,
-      .css-loading .theme-toggle,
-      .css-loading .cursor-glow,
-      .css-loading #particles,
-      .css-loading .scroll-indicator,
-      .css-loading .hero-bg {
-        visibility: hidden !important;
-      }
-    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://aesthetic-dine.sirv.com" crossorigin />
     <link
       rel="preload"
       as="style"
-      href={marketingStylesHref}
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Outfit:wght@300;400;500&display=swap"
     />
     <link
       rel="stylesheet"
-      href={marketingStylesHref}
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Outfit:wght@300;400;500&display=swap"
       media="print"
-      onload="this.media='all';document.documentElement.classList.remove('css-loading')"
+      onload="this.media='all'"
     />
     <noscript>
-      <link rel="stylesheet" href={marketingStylesHref} />
-      <style>
-        .css-loading .nav-links,
-        .css-loading .nav-cta-desktop,
-        .css-loading .theme-toggle,
-        .css-loading .cursor-glow,
-        .css-loading #particles,
-        .css-loading .scroll-indicator,
-        .css-loading .hero-bg {
-          visibility: visible !important;
-        }
-      </style>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Outfit:wght@300;400;500&display=swap"
+      />
     </noscript>
+    <title>{title}</title>
     <script is:inline>
       (function () {
-        var saved = localStorage.getItem('aesthetic-theme');
+        const saved = localStorage.getItem('aesthetic-theme');
         if (saved) document.documentElement.setAttribute('data-theme', saved);
-
-        // Safety: never leave the page in loading chrome forever
-        setTimeout(function () {
-          document.documentElement.classList.remove('css-loading');
-        }, 2500);
-
-        function loadFonts() {
-          if (document.getElementById('ad-fonts')) return;
-          var pre1 = document.createElement('link');
-          pre1.rel = 'preconnect';
-          pre1.href = 'https://fonts.googleapis.com';
-          var pre2 = document.createElement('link');
-          pre2.rel = 'preconnect';
-          pre2.href = 'https://fonts.gstatic.com';
-          pre2.crossOrigin = 'anonymous';
-          var l = document.createElement('link');
-          l.id = 'ad-fonts';
-          l.rel = 'stylesheet';
-          l.href =
-            'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Outfit:wght@300;400;500&display=swap';
-          document.head.appendChild(pre1);
-          document.head.appendChild(pre2);
-          document.head.appendChild(l);
-        }
-        if ('requestIdleCallback' in window) {
-          requestIdleCallback(loadFonts, { timeout: 1800 });
-        } else {
-          window.addEventListener('load', function () {
-            setTimeout(loadFonts, 1);
-          });
-        }
       })();
     </script>
   </head>
