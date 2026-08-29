@@ -1,7 +1,7 @@
 /* ===== CSS Variables & Theming ===== */
 :root {
-  --font-display: 'Cormorant Garamond', Georgia, serif;
-  --font-body: 'Outfit', system-ui, sans-serif;
+  --font-display: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --font-body: 'Outfit', system-ui, -apple-system, 'Segoe UI', sans-serif;
 
   --transition-theme: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-smooth: 0.6s cubic-bezier(0.16, 1, 0.3, 1);
@@ -299,7 +299,7 @@ a {
 
 .hero-content {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   text-align: center;
   max-width: 720px;
 }
@@ -453,7 +453,9 @@ a {
 }
 
 .btn-ghost {
-  background: var(--bg-glass);
+  position: relative;
+  z-index: 1;
+  background: color-mix(in srgb, var(--bg-primary) 72%, var(--bg-glass));
   border: 1px solid var(--border-glass);
   backdrop-filter: blur(10px);
   color: var(--text-primary);
@@ -469,7 +471,8 @@ a {
   bottom: 2rem;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 1;
+  z-index: 0;
+  pointer-events: none;
 }
 
 .scroll-line {
@@ -478,6 +481,12 @@ a {
   height: 60px;
   background: linear-gradient(to bottom, var(--accent-1), transparent);
   animation: scroll-pulse 2s ease-in-out infinite;
+}
+
+@media (max-height: 820px) {
+  .scroll-indicator {
+    display: none;
+  }
 }
 
 @keyframes scroll-pulse {
@@ -1054,10 +1063,9 @@ body.nav-locked {
 
   .orb-1,
   .orb-2,
-  .orb-3 {
-    filter: blur(40px);
-    opacity: 0.35;
-    animation: none;
+  .orb-3,
+  .hero-bg {
+    display: none !important;
   }
 
   .title-line {
