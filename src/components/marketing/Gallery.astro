@@ -1,35 +1,32 @@
 ---
-const sirv = (path: string, w: number) =>
-  `https://aesthetic-dine.sirv.com/Aesthetic%20Dine/SS/${path}?w=${w}&format=webp&q=72&dpr=1`;
-
 const items = [
   {
     label: 'Hero & branding',
-    image: sirv('demo-kitchen-hero.png', 720),
+    image: 'https://aesthetic-dine.sirv.com/Aesthetic%20Dine/SS/demo-kitchen-hero.png',
     delay: '1',
     href: '/sites/demo',
   },
   {
     label: 'Menu showcase',
-    image: sirv('demo-kitchen-menu.png', 720),
+    image: 'https://aesthetic-dine.sirv.com/Aesthetic%20Dine/SS/demo-kitchen-menu.png',
     delay: '2',
     href: '/sites/demo#menu',
   },
   {
     label: 'Location & map',
-    image: sirv('demo-kitchen-location.png', 720),
+    image: 'https://aesthetic-dine.sirv.com/Aesthetic%20Dine/SS/demo-kitchen-location.png',
     delay: '3',
     href: '/sites/demo#location',
   },
   {
     label: 'Phone reservations',
-    image: sirv('demo-kitchen-contact.png', 720),
+    image: 'https://aesthetic-dine.sirv.com/Aesthetic%20Dine/SS/demo-kitchen-contact.png',
     delay: '4',
     href: '/sites/demo#contact',
   },
   {
     label: 'Live demo site',
-    image: sirv('demo-kitchen-live.png', 1100),
+    image: 'https://aesthetic-dine.sirv.com/Aesthetic%20Dine/SS/demo-kitchen-live.png',
     delay: '5',
     wide: true,
     href: '/sites/demo',
@@ -59,8 +56,8 @@ const items = [
               class="gallery-image"
               loading="lazy"
               decoding="async"
-              width="720"
-              height="405"
+              width="1200"
+              height="675"
             />
             <span class="gallery-label">{item.label}</span>
           </div>
