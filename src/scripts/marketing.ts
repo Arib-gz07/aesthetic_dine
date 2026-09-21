@@ -4,6 +4,31 @@ const isTouch =
   window.matchMedia('(max-width: 768px)').matches;
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+// Keep the landing hero at the true top on reload / soft navigation.
+// Browser scroll restoration + late font load was pushing content under the fixed nav.
+try {
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+} catch {
+  /* ignore */
+}
+
+function shouldResetScrollToTop() {
+  const path = location.pathname.replace(/\/$/, '') || '/';
+  const hash = location.hash;
+  return (path === '/' || path === '') && (!hash || hash === '#home');
+}
+
+function resetScrollToTop() {
+  if (!shouldResetScrollToTop()) return;
+  window.scrollTo(0, 0);
+}
+
+resetScrollToTop();
+requestAnimationFrame(resetScrollToTop);
+window.addEventListener('pageshow', (event) => {
+  if (event.persisted) resetScrollToTop();
+});
+
 // ===== Theme Toggle =====
 const themeToggle = document.getElementById('themeToggle');
 const savedTheme = localStorage.getItem('aesthetic-theme');

@@ -44,6 +44,17 @@ const {
       (function () {
         const saved = localStorage.getItem('aesthetic-theme');
         if (saved) document.documentElement.setAttribute('data-theme', saved);
+
+        // Prevent Chrome from restoring a staggered scrollY on reload
+        // (compounds when fonts/layout settle after paint).
+        try {
+          if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+        } catch (_) {}
+
+        var hash = location.hash;
+        if (!hash || hash === '#home') {
+          window.scrollTo(0, 0);
+        }
       })();
     </script>
   </head>
