@@ -42,7 +42,7 @@ Later, when reconnecting Google:
 
 ## Deploy to Vercel
 
-1. Push this repo to GitHub (already: `Arib-gz07/aesthetic-dine`)
+1. Push this repo to GitHub (already: `Arib-gz07/aesthetic_dine`)
 2. Go to [vercel.com](https://vercel.com) → **Add New** → **Project** → import the repo
 3. Framework: **Astro** (auto-detected)
 4. Add Environment Variables (Production + Preview):
