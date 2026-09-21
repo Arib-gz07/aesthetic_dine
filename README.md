@@ -1,12 +1,14 @@
 # Aesthetic Dine
 
-Restaurant website platform for Bangladesh — beautiful marketing site, client restaurant sites on subdomains, and intake forms.
+Restaurant website platform for Bangladesh — beautiful marketing site, AI-generated previews, and (later) hosted restaurant sites.
 
 ## Stack
 
-- **Astro 5** + TypeScript
-- **Cloudflare Pages/Workers** (hosting)
-- **Supabase** (database, optional for now)
+- **Astro** + TypeScript
+- **Vercel** (hosting)
+- **Google Sheets + Drive** (intake / CRM — reconnecting after Vercel migrate)
+- **v0 API** (AI website generation — later)
+- **Supabase** (optional later)
 
 ## Local development
 
@@ -24,62 +26,52 @@ Open [http://localhost:4321](http://localhost:4321)
 
 ## Environment variables
 
-Copy `.env.example` to `.env` and add Supabase keys when ready:
+Copy `.env.example` to `.env`:
 
 ```bash
 cp .env.example .env
 ```
 
-Without Supabase, intake forms log to the console (demo mode).
+Required for the form:
 
-## Deploy to Cloudflare
+- *(none right now — form runs in demo mode)*
 
-You have two options. **Option A (Pages)** is simpler if you're new to Cloudflare.
+Later, when reconnecting Google:
 
-### Option A — Cloudflare Pages (recommended)
+- `GOOGLE_SHEETS_WEBAPP_URL` — Apps Script web app `/exec` URL
 
-1. Cloudflare dashboard → **Workers & Pages** → **Create** → **Pages** → **Connect to Git**
-2. Select **Arib-gz07/aesthetic-dine** (or your repo)
-3. Build settings:
-   - **Framework preset:** Astro
-   - **Build command:** `npm run build`
-   - **Build output directory:** `dist`
-   - **Deploy command:** leave **empty** (do not use `npx wrangler deploy`)
-4. Deploy
+## Deploy to Vercel
 
-### Option B — Workers Builds (what you set up)
+1. Push this repo to GitHub (already: `Arib-gz07/aesthetic-dine`)
+2. Go to [vercel.com](https://vercel.com) → **Add New** → **Project** → import the repo
+3. Framework: **Astro** (auto-detected)
+4. Add Environment Variables (Production + Preview):
+   - `PUBLIC_MAIN_DOMAIN` = `aestheticdine.com` (when you have a custom domain)
+   - *(add `GOOGLE_SHEETS_WEBAPP_URL` later when we reconnect Sheets)*
+5. Click **Deploy**
+6. You’ll get a free URL like `https://aesthetic-dine.vercel.app`
 
-If using Workers Builds with a deploy command:
+### Or from the terminal
 
-- **Build command:** `npm run build`
-- **Deploy command:** `npx wrangler deploy`
+```bash
+npx vercel login
+npx vercel
+```
 
-The repo `wrangler.toml` must **not** use `pages_build_output_dir` — that causes a deploy conflict. The current config is fixed for Workers deploy.
+For production:
 
-After a failed build, open the log, click **Download log**, and check the red error at the bottom of the **Deploying** step.
-
-### Environment variables on Cloudflare
-
-The intake form needs `GOOGLE_SHEETS_WEBAPP_URL` at **runtime** (not only at build time).
-
-1. Cloudflare dashboard → **Workers & Pages** → **aesthetic-dine**
-2. **Settings** → **Variables and Secrets**
-3. Add:
-   - `GOOGLE_SHEETS_WEBAPP_URL` — as a **Secret**, value = your Apps Script `/exec` URL (same as local `.env`)
-   - `PUBLIC_MAIN_DOMAIN` — as a plain text variable (e.g. `aestheticdine.com`) when you use a custom domain
-4. Redeploy (or save secrets and trigger a new deployment) so the Worker picks them up
-
-Local `.env` is enough for `astro dev`. Production does **not** read `.env`; without the Cloudflare secret the form runs in demo mode and nothing is written to Sheets/Drive.
+```bash
+npx vercel --prod
+```
 
 ### Custom domain (later)
 
-1. Buy `aestheticdine.com` on Cloudflare Registrar
-2. Pages → Custom domains → add `aestheticdine.com` and `*.aestheticdine.com`
-3. Set `PUBLIC_MAIN_DOMAIN=aestheticdine.com` in environment variables
+1. Vercel project → **Settings** → **Domains** → add `aestheticdine.com` and `www`
+2. Set `PUBLIC_MAIN_DOMAIN=aestheticdine.com` in Vercel env vars and redeploy
 
 ## Subdomain routing
 
-When a custom domain is connected, `joes-kitchen.aestheticdine.com` automatically serves that restaurant's site via middleware.
+When a custom domain is connected, `joes-kitchen.aestheticdine.com` can serve that restaurant’s site via middleware.
 
 For local testing, use `/sites/demo` or add `127.0.0.1 demo.localhost` to `/etc/hosts`.
 
@@ -87,7 +79,7 @@ For local testing, use `/sites/demo` or add `127.0.0.1 demo.localhost` to `/etc/
 
 ```
 src/
-├── components/marketing/   # Aesthetic Dine business site (test2 theme)
+├── components/marketing/   # Aesthetic Dine business site
 ├── components/restaurant/  # Client restaurant components
 ├── layouts/
 ├── pages/

@@ -9,6 +9,7 @@ function getMainDomain(): string {
 function isMainHost(hostname: string): boolean {
   if (MAIN_HOSTS.has(hostname)) return true;
   if (hostname.endsWith('.pages.dev')) return true;
+  if (hostname.endsWith('.vercel.app')) return true;
   if (hostname === getMainDomain()) return true;
   if (hostname === `www.${getMainDomain()}`) return true;
   return false;
